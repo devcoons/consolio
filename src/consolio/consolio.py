@@ -182,9 +182,9 @@ class Consolio:
             total_indent_spaces = " " * total_indent
             text_lines = ConsolioUtils.split_text_to_fit(text, total_indent)
             
-            print(f"{indent_spaces}{status_prefix}{text_lines[0]}")
+            print(f"\r{indent_spaces}{status_prefix}{text_lines[0]}")
             for ln in text_lines[1:]:
-                print(f"{total_indent_spaces}{ln}")
+                print(f"\r{total_indent_spaces}{ln}")
 
     # --------------------------------------------------------------------------------- #
 
@@ -220,7 +220,7 @@ class Consolio:
                 time.sleep(0.1)
                 idx += 1
         finally:
-            print("\033[?25h", end="")
+            print("\033[?25h", end="\r")
             if not inline_spinner:
                 print(' ' * len(line), end='\r', flush=True)
 
