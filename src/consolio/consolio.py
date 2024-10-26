@@ -138,7 +138,7 @@ class Consolio:
             else:
                 print()
                 user_input = getpass.getpass(total_indent_spaces)
-                self._last_text = question + ("#" * ((ConsolioUtils.get_terminal_size()[0]-2)))
+                self._last_text = question + ("#" * (ConsolioUtils.get_terminal_size()[0] - 2))
         else:   
             if inline:
                 user_input = input(" ") 
@@ -146,7 +146,8 @@ class Consolio:
             else:
                 print()
                 user_input = input(total_indent_spaces)
-                self._last_text = question + ("#" * ((ConsolioUtils.get_terminal_size()[0]-2)))+("#" * len(user_input))
+                extra_space = (ConsolioUtils.get_terminal_size()[0] - 2) + len(user_input)
+                self._last_text = question + ("#" * extra_space)
         self._last_status_prefix = self.PROG_QST
         self._last_indent = indent
         
