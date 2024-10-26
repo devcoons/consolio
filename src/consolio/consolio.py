@@ -1,10 +1,27 @@
 import threading
+import shutil
 import time
 import sys
 import os
 
+class ConsolioUtils:
+
+    def get_terminal_size():
+        size = shutil.get_terminal_size(fallback=(80, 24))
+        return [size.columns, size.lines]
+
+    def split_text_to_fit(text,  indent=0): 
+        effective_width = (ConsolioUtils.get_terminal_size()[0]-2) - indent
+        lines = []      
+        while text:     
+            line = text[:effective_width]
+            lines.append(line.strip())
+            text = text[effective_width:]       
+        return lines
+
+
 class Consolio:
-    # Color definitions
+
     FG_RD = "\033[31m"    # Red (error)
     FG_GR = "\033[32m"    # Green (success)
     FG_YW = "\033[33m"    # Yellow (warning)
@@ -13,30 +30,27 @@ class Consolio:
     FG_MG = "\033[35m"    # Magenta (spinner)
     RESET = "\033[0m"     # Reset
 
-    # Status tags
     PROG_BEG = FG_BL + '[+] ' + RESET  # Start
     PROG_STP = FG_CB + '[-] ' + RESET  # Step
     PROG_WRN = FG_YW + '[!] ' + RESET  # Warning
     PROG_ERR = FG_RD + '[x] ' + RESET  # Error
     PROG_CMP = FG_GR + '[v] ' + RESET  # Complete
 
-    # Spinner definitions (without 'star')
     SPINNERS = {
         'dots':  ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'],
         'braille': ['⠋', '⠙', '⠚', '⠞', '⠖', '⠦', '⠴', '⠲', '⠳', '⠓'],
         'default': ['|', '/', '-', '\\']
     }
 
-    _last_message = ""
+    _last_message = []
     _last_indent = 0
 
     def __init__(self, spinner_type='default'):
         self._animating = False
         self._spinner_thread = None
         self._lock = threading.Lock()
-        self._last_message = ""  # Track the last message for inline spinner
+        self._last_message = []
 
-        # Store the selected spinner type
         self.spinner_type = spinner_type.lower()
         self.spinner_chars = self.SPINNERS.get(self.spinner_type, self.SPINNERS['default'])
 
@@ -46,7 +60,7 @@ class Consolio:
             self.spinner_chars = self.SPINNERS['default']
 
     def sprint(self, indent, status, text, replace = False):
-        self.stop_animate()  # Stop any ongoing animation before printing
+        self.stop_animate()
         status_prefix = {
             "str": self.PROG_BEG,
             "stp": self.PROG_STP,
@@ -56,15 +70,24 @@ class Consolio:
         }.get(status, "")
         indent_spaces = " " * (indent * 4)
         with self._lock:
-            # Save the last message details for inline spinner
             if replace == True:
-                empty_space =  " " * ((self._last_indent * 4)+(len(self._last_text)+4))
-                print("\033[F"+empty_space, end="\r")
+                total_indent = len(indent_spaces)+4
+                total_indent_spaces = " " * (total_indent)
+                text_lines = ConsolioUtils.split_text_to_fit(self._last_text,total_indent)[::-1]
+                empty_space =  " " * (total_indent+(len(text_lines[0])))
+                print("\033[F"+empty_space, end='\r')
+                for ln in text_lines[1:]:
+                    empty_space =  " " * (total_indent+(len(ln)))              
+                    print("\033[F"+empty_space, end='\r')
             self._last_status_prefix = status_prefix
             self._last_indent = indent
             self._last_text = text
-
-            print(f"{indent_spaces}{status_prefix}{text}")
+            total_indent = len(indent_spaces)+4
+            total_indent_spaces = " " * (total_indent)
+            text_lines = ConsolioUtils.split_text_to_fit(text,total_indent)
+            print(f"{indent_spaces}{status_prefix}{text_lines[0]}")
+            for ln in text_lines[1:]:
+                print(f"{total_indent_spaces}{ln}")
 
     def start_animate(self, indent=0, inline_spinner=False):
         if self._animating:
@@ -75,8 +98,8 @@ class Consolio:
 
     def _animate(self, indent, inline_spinner):
         idx = 0
-        print("\033[?25l", end="")  # Hide the cursor
-        spinner_position = 4 + (self._last_indent * 4)  # Calculate dynamic spinner position based on indent
+        print("\033[?25l", end="")
+        spinner_position = 4 + (self._last_indent * 4)
         try:
             while self._animating:
                 spinner_char = self.spinner_chars[idx % len(self.spinner_chars)]
@@ -84,20 +107,23 @@ class Consolio:
                     # Inline spinner mode: Move cursor up and replace previous line
                     with self._lock:
                         indent_spaces = " " * (self._last_indent * 4)
-                        line = f"{indent_spaces}{self._last_status_prefix[:5]}[{self.FG_MG}{spinner_char}{self._last_status_prefix[:5]}]{self.RESET} {self._last_text}"
-                        print("\033[F", end="")  # Move cursor up to overwrite previous line
-                        print(line,  flush=True)
+                        text_lines = ConsolioUtils.split_text_to_fit(self._last_text,len(indent_spaces)+4)
+                        tline = f"{indent_spaces}{self._last_status_prefix[:5]}[{self.FG_MG}{spinner_char}{self._last_status_prefix[:5]}]{self.RESET} {text_lines[0]}"
+                        line = ("\033[F" * len(text_lines))+tline+("\033[B" * len(text_lines))
+                        print(line,end="",flush=True)
                 else:
                     # Regular spinner animation on a new line
                     indent_spaces = " " * (indent * 4)
                     with self._lock:
                         line = f"{indent_spaces} {self.FG_MG}{spinner_char}{self.RESET}"
-                        print(line, end='\r', flush=True)
+                        clear_line = line
+                        print(f"{clear_line}", end='\r', flush=True)
                 time.sleep(0.1)
                 idx += 1
+                
         finally:
-            print("\033[?25h", end="")  # Show the cursor again
-            with self._lock:
+            print("\033[?25h", end="")
+            if not inline_spinner:
                 clear_line = ' ' * len(line)
                 print(f"{clear_line}", end='\r', flush=True)
 
