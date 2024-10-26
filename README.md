@@ -1,5 +1,10 @@
 # Consolio
 
+[![PyPI - Version](https://img.shields.io/pypi/v/consolio?style=for-the-badge)](https://pypi.org/project/consolio)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/consolio?style=for-the-badge)
+![GitHub License](https://img.shields.io/github/license/devcoons/consolio?style=for-the-badge)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/consolio?style=for-the-badge&color=%23F0F)
+
 `Consolio` is a Python library that provides an elegant way to display progress updates, warnings, errors, and other status messages in the console with color-coded indicators and spinners. Ideal for CLI applications that require step-by-step feedback to users.
 
 ## Table of Contents
