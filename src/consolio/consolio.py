@@ -1,3 +1,33 @@
+#########################################################################################
+#                                                                                       #
+# MIT License                                                                           #
+#                                                                                       #
+# Copyright (c) 2024 Ioannis D. (devcoons)                                              #
+#                                                                                       #
+# Permission is hereby granted, free of charge, to any person obtaining a copy          #
+# of this software and associated documentation files (the "Software"), to deal         #
+# in the Software without restriction, including without limitation the rights          #
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell             #
+# copies of the Software, and to permit persons to whom the Software is                 #
+# furnished to do so, subject to the following conditions:                              #
+#                                                                                       #
+# The above copyright notice and this permission notice shall be included in all        #
+# copies or substantial portions of the Software.                                       #
+#                                                                                       #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR            #
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,              #
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE           #
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                #
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,         #
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE         #
+# SOFTWARE.                                                                             #
+#                                                                                       #
+#########################################################################################
+
+#########################################################################################
+# IMPORTS                                                                               #
+#########################################################################################
+
 import threading
 import getpass
 import shutil
@@ -5,12 +35,20 @@ import time
 import sys
 import os
 
+#########################################################################################
+# CLASS: ConsolioUtils                                                                  #
+#########################################################################################
+
 class ConsolioUtils:
     """Utility functions for terminal operations and text formatting."""
     
+    # --------------------------------------------------------------------------------- #
+
     def get_terminal_size():
         size = shutil.get_terminal_size(fallback=(80, 24))
         return [size.columns, size.lines]
+
+    # --------------------------------------------------------------------------------- #
 
     def split_text_to_fit(text, indent=0): 
         effective_width = (ConsolioUtils.get_terminal_size()[0] - 2) - indent
@@ -22,9 +60,15 @@ class ConsolioUtils:
         return lines
 
 
+#########################################################################################
+# CLASS: Consolio                                                                      #
+#########################################################################################
+
 class Consolio:
     """Main class for terminal printing with color-coded messages and animations."""
     
+    # --------------------------------------------------------------------------------- #
+
     FG_RD = "\033[31m"    
     FG_GR = "\033[32m"    
     FG_YW = "\033[33m"    
@@ -50,6 +94,9 @@ class Consolio:
     _last_message = []
     _last_indent = 0
 
+    # --------------------------------------------------------------------------------- #
+    # --------------------------------------------------------------------------------- #
+
     def __init__(self, spinner_type='default'):
         self._animating = False
         self._spinner_thread = None
@@ -62,7 +109,8 @@ class Consolio:
             self.spinner_type = 'default'
             self.spinner_chars = self.SPINNERS['default']
 
-
+    # --------------------------------------------------------------------------------- #
+    
     def sinput(self, indent, question, inline=False, hidden=False, replace=False):
         self.stop_animate()
         indent_spaces = " " * (indent * 4)
@@ -104,7 +152,7 @@ class Consolio:
         
         return user_input
 
-
+    # --------------------------------------------------------------------------------- #
 
     def sprint(self, indent, status, text, replace=False):
         self.stop_animate()
@@ -136,6 +184,8 @@ class Consolio:
             print(f"{indent_spaces}{status_prefix}{text_lines[0]}")
             for ln in text_lines[1:]:
                 print(f"{total_indent_spaces}{ln}")
+
+    # --------------------------------------------------------------------------------- #
 
     def start_animate(self, indent=0, inline_spinner=False):
         if self._animating:
@@ -173,11 +223,15 @@ class Consolio:
             if not inline_spinner:
                 print(' ' * len(line), end='\r', flush=True)
 
+    # --------------------------------------------------------------------------------- #
+
     def stop_animate(self):
         if self._animating:
             self._animating = False
             self._spinner_thread.join()
             self._spinner_thread = None
+
+    # --------------------------------------------------------------------------------- #
 
     def is_spinner_supported(self, spinner_chars):
         encoding = sys.stdout.encoding or 'utf-8'
@@ -189,3 +243,7 @@ class Consolio:
             except Exception:
                 return False
         return True
+
+#########################################################################################
+# EOF                                                                                   #
+#########################################################################################
