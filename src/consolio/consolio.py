@@ -99,20 +99,63 @@ class Consolio:
 
     def __init__(self, spinner_type='default'):
         self._animating = False
+        self._progressing = False
         self._spinner_thread = None
+        self._progress_thread = None
         self._lock = threading.Lock()
         self._last_message = []
         self.spinner_type = spinner_type.lower()
         self.spinner_chars = self.SPINNERS.get(self.spinner_type, self.SPINNERS['default'])
+        self.current_progress = 0
 
         if not self.is_spinner_supported(self.spinner_chars):
             self.spinner_type = 'default'
             self.spinner_chars = self.SPINNERS['default']
 
     # --------------------------------------------------------------------------------- #
+
+    def start_progress(self, indent=0, initial_percentage=0):
+        self.stop_animate()
+        self.stop_progress()
+        self._progressing = True
+        self.current_progress = initial_percentage
+        self._progress_thread = threading.Thread(target=self._progress, args=(indent,))
+        self._progress_thread.start()
+
+    # --------------------------------------------------------------------------------- #
+
+    def _progress(self, indent):
+        idx = 0
+        spinner_position = 4 + (self._last_indent * 4)
+        while self._progressing:
+            spinner_char = self.spinner_chars[idx % len(self.spinner_chars)]
+            indent_spaces = " " * (indent * 4)
+            with self._lock:
+                line = f"{indent_spaces}{self.FG_BL}[{self.FG_MG}{spinner_char}{self.FG_BL}]{self.RESET} In progress: {self.FG_YW}{self.current_progress}%{self.RESET}"
+                print(f"{line}", end='\r', flush=True)
+            time.sleep(0.1)
+            idx += 1
+        print(' ' * len(line), end='\r', flush=True) 
+
+    # --------------------------------------------------------------------------------- #
+
+    def update_progress(self, percentage):
+        with self._lock:
+            self.current_progress = percentage
+
+    # --------------------------------------------------------------------------------- #
+
+    def stop_progress(self):
+        if self._progressing:
+            self._progressing = False
+            self._progress_thread.join()
+            self._progress_thread = None
+
+    # --------------------------------------------------------------------------------- #
     
     def sinput(self, indent, question, inline=False, hidden=False, replace=False):
         self.stop_animate()
+        self.stop_progress()
         indent_spaces = " " * (indent * 4)
         
         if replace:
@@ -157,6 +200,7 @@ class Consolio:
 
     def sprint(self, indent, status, text, replace=False):
         self.stop_animate()
+        self.stop_progress()
         status_prefix = {
             "str": self.PROG_BEG,
             "stp": self.PROG_STP,
@@ -189,11 +233,14 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def start_animate(self, indent=0, inline_spinner=False):
+        self.stop_progress()
         if self._animating:
             return
         self._animating = True
         self._spinner_thread = threading.Thread(target=self._animate, args=(indent, inline_spinner))
         self._spinner_thread.start()
+
+    # --------------------------------------------------------------------------------- #
 
     def _animate(self, indent, inline_spinner):
         idx = 0

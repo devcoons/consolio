@@ -49,6 +49,15 @@ console_default.start_animate(inline_spinner=True)
 time.sleep(3)
 console_default.stop_animate()
 
+# Inline spinner mode
+print("Showing progress:")
+console_braille.sprint(1, "str", "A process that requires progress disply...", replace=True)
+console_braille.start_progress(indent=1)
+for i in range(1,100):
+    console_braille.update_progress(i)
+    time.sleep(0.05)
+console_braille.sprint(1,"cmp","The process finished.")
+
 # Replacing previous line mode
 print("\nReplacing previous line mode:")
 console_default.sprint(1, "str", "This message will be replaced.")
