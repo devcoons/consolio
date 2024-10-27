@@ -1,59 +1,70 @@
 import time
-from consolio import Consolio
+import consolio 
 
-def main():
-    spinner_types = ['default', 'braille', 'dots']
+# Initialize Consolio with different spinner types
+console_default = consolio.Consolio(spinner_type="default")
+console_dots = consolio.Consolio(spinner_type="dots")
+console_braille = consolio.Consolio(spinner_type="braille")
 
-    for spinner in spinner_types:
-        print(f"\nDemonstrating spinners: '{spinner}'")
-        print("-" * 40)
+# 1. Demonstrating sprint steps with different statuses
+print("Demonstrating sprint steps with various statuses:")
+console_default.sprint(1, "str", "Start process...")
+time.sleep(1)
+console_default.sprint(1, "stp", "Step of a process...")
+time.sleep(1)
+console_default.sprint(1, "wrn", "Warning: Proceed with caution.")
+time.sleep(1)
+console_default.sprint(1, "err", "Error encountered!")
+time.sleep(1)
+console_default.sprint(1, "cmp", "Process completed successfully!")
+time.sleep(1)
 
-        console = Consolio(spinner_type=spinner)
-        console.sprint(0, 'str', 'Starting demo process. (spinner under)')
-        console.sprint(1, 'stp', 'Performing step 1.')
-        console.start_animate(1)
-        time.sleep(1.2)
-        console.sprint(1, 'wrn', 'A warning occurred.')
-        console.sprint(1, 'stp', 'Performing step 2.')
-        console.start_animate(1)
-        time.sleep(1.1)        
-        console.sprint(1, 'err', 'Step 2 failed. An error occurred.')
-        console.sprint(1, 'stp', 'Performing step 3.')
-        console.start_animate(1)
-        time.sleep(1.3)        
-        console.sprint(1, 'cmp', 'Step 3 completed.')
-        time.sleep(2)
-        print("-" * 40)
-        console.sprint(0, 'str', 'Starting demo process. (spinner inline/no-replace)')
-        console.sprint(1, 'stp', 'Performing step 1.')
-        console.start_animate(inline_spinner=True)
-        time.sleep(1.2)
-        console.sprint(1, 'wrn', 'A warning occurred in Step 1.')
-        console.sprint(1, 'stp', 'Performing step 2.')
-        console.start_animate(inline_spinner=True)
-        time.sleep(1.1)        
-        console.sprint(1, 'err', 'Step 2 failed. An error occurred.',)
-        console.sprint(1, 'stp', 'Performing step 3.')
-        console.start_animate(inline_spinner=True)
-        time.sleep(1.4)        
-        console.sprint(1, 'cmp', 'Step 3 completed.')
-        time.sleep(2)
-        print("-" * 40)
-        console.sprint(0, 'str', 'Starting demo process. (spinner inline/replace)')
-        console.sprint(1, 'stp', 'Performing step 1')
-        console.start_animate(inline_spinner=True)
-        time.sleep(1.1)
-        console.sprint(1, 'wrn', 'A warning occurred in Step 1.',replace=True)
-        console.sprint(1, 'stp', 'Performing step 2')
-        console.start_animate(inline_spinner=True)
-        time.sleep(1.7)        
-        console.sprint(1, 'err', 'Step 2 failed. An error occurred.',replace=True)
-        console.sprint(1, 'stp', 'Performing step 3')
-        console.start_animate(inline_spinner=True)
-        time.sleep(1.1)        
-        console.sprint(1, 'cmp', 'Step 3 completed.',replace=True)
-        time.sleep(2)        
+# 2. Demonstrating indentation levels
+print("\nDemonstrating indentation levels:")
+for indent_level in range(4):
+    console_default.sprint(indent_level, "str", f"Indented message at level {indent_level}")
+    time.sleep(0.5)
+
+# 3. Demonstrating different spinners
+print("\nDemonstrating different spinners:")
+console_default.start_animate(indent=1)
+time.sleep(2)
+console_default.stop_animate()
+
+console_dots.start_animate(indent=2)
+time.sleep(2)
+console_dots.stop_animate()
+
+console_braille.start_animate(indent=3)
+time.sleep(2)
+console_braille.stop_animate()
+
+# 4. Demonstrating various presentation modes
+print("\nDemonstrating presentation modes:")
+
+# Inline spinner mode
+print("Inline spinner mode:")
+console_default.sprint(1, "str", "Inline spinner running...", replace=True)
+console_default.start_animate(inline_spinner=True)
+time.sleep(3)
+console_default.stop_animate()
+
+# Replacing previous line mode
+print("\nReplacing previous line mode:")
+console_default.sprint(1, "str", "This message will be replaced.")
+time.sleep(2)
+console_default.sprint(1, "cmp", "Message replaced successfully!", replace=True)
 
 
-if __name__ == "__main__":
-    main()
+# Replacing previous line mode
+print("\nMulti-line text (long text)")
+console_default.sprint(1, "str", "This message is a really long message with inline spinner that will be replaced in 2 seconds. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+console_default.start_animate(inline_spinner=True)
+time.sleep(2)
+console_default.sprint(1, "cmp", "Message replaced successfully!", replace=True)
+time.sleep(1)
+console_default.sprint(1, "str", "This message is a really long message with normal spinner that will be replaced in 2 seconds. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+console_default.start_animate()
+time.sleep(2)
+console_default.sprint(1, "cmp", "Message replaced successfully!", replace=True)
+print("\nDemonstration complete!")
