@@ -44,20 +44,20 @@ console = Consolio(spinner_type='dots')  # Initialize with dots spinner
 
 Consolio supports multiple status messages, each with a unique color and symbol:
 
-- **Start**: `[+]` Blue - Marks the start of a process
-- **Step**: `[-]` Cyan - Intermediate step in a process
+- **Info**: `[!]` Blue - Marks the start of a process
+- **Work(Step)**: `[-]` Cyan - Intermediate step in a process
 - **Warning**: `[!]` Yellow - Displays warnings
 - **Error**: `[x]` Red - Displays errors
 - **Complete**: `[v]` Green - Indicates completion of a step or process
 
-Use the `sprint` method to print messages with a specific status, indentation level, and replacement option:
+Use the `print` method to print messages with a specific status, indentation level, and replacement option:
 
 ```
-console.sprint(indent=0, status="str", text="Starting process")
-console.sprint(indent=1, status="stp", text="Executing step 1")
-console.sprint(indent=1, status="wrn", text="Warning: Check your input")
-console.sprint(indent=1, status="err", text="Error: Process failed")
-console.sprint(indent=0, status="cmp", text="Process complete")
+console.print(indent=0, status="inf", text="Starting process")
+console.print(indent=1, status="wip", text="Executing step 1")
+console.print(indent=1, status="wrn", text="Warning: Check your input")
+console.print(indent=1, status="err", text="Error: Process failed")
+console.print(indent=0, status="cmp", text="Process complete")
 ```
 
 ### Spinners
@@ -74,7 +74,7 @@ console.stop_animate()
 Use the `inline_spinner=True` option to display the spinner on the same line as the last message:
 
 ```
-console.sprint(1, "stp", "Calculating size")
+console.print(1, "stp", "Calculating size")
 console.start_animate(inline_spinner=True)
 time.sleep(2)
 console.stop_animate()

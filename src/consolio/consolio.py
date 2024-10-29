@@ -71,16 +71,17 @@ class Consolio:
 
     FG_RD = "\033[31m"    
     FG_GR = "\033[32m"    
-    FG_YW = "\033[33m"    
+    FG_YW = "\033[33m" 
+    FG_OR = "\033[38m"    
     FG_CB = "\033[36m"    
     FG_BL = "\033[34m"    
     FG_MG = "\033[35m" 
     FG_BB = "\033[94m"   
     RESET = "\033[0m"     
 
-    PROG_BEG = FG_BL + '[+] ' + RESET
-    PROG_STP = FG_CB + '[-] ' + RESET
-    PROG_WRN = FG_YW + '[!] ' + RESET
+    PROG_INF = FG_BL + '[i] ' + RESET
+    PROG_WIP = FG_CB + '[~] ' + RESET
+    PROG_WRN = FG_OR + '[!] ' + RESET
     PROG_ERR = FG_RD + '[x] ' + RESET
     PROG_CMP = FG_GR + '[v] ' + RESET
     PROG_QST = FG_BB + '[?] ' + RESET
@@ -153,7 +154,7 @@ class Consolio:
 
     # --------------------------------------------------------------------------------- #
     
-    def sinput(self, indent, question, inline=False, hidden=False, replace=False):
+    def input(self, indent, question, inline=False, hidden=False, replace=False):
         self.stop_animate()
         self.stop_progress()
         indent_spaces = " " * (indent * 4)
@@ -198,12 +199,12 @@ class Consolio:
 
     # --------------------------------------------------------------------------------- #
 
-    def sprint(self, indent, status, text, replace=False):
+    def print(self, indent, status, text, replace=False):
         self.stop_animate()
         self.stop_progress()
         status_prefix = {
-            "str": self.PROG_BEG,
-            "stp": self.PROG_STP,
+            "inf": self.PROG_INF,
+            "wip": self.PROG_WIP,
             "wrn": self.PROG_WRN,
             "err": self.PROG_ERR,
             "cmp": self.PROG_CMP
