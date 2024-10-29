@@ -71,8 +71,7 @@ class Consolio:
 
     FG_RD = "\033[31m"    
     FG_GR = "\033[32m"    
-    FG_YW = "\033[33m" 
-    FG_OR = "\033[38m"    
+    FG_YW = "\033[33m"  
     FG_CB = "\033[36m"    
     FG_BL = "\033[34m"    
     FG_MG = "\033[35m" 
@@ -80,8 +79,8 @@ class Consolio:
     RESET = "\033[0m"     
 
     PROG_INF = FG_BL + '[i] ' + RESET
-    PROG_WIP = FG_CB + '[~] ' + RESET
-    PROG_WRN = FG_OR + '[!] ' + RESET
+    PROG_WIP = FG_CB + '[-] ' + RESET
+    PROG_WRN = FG_YW + '[!] ' + RESET
     PROG_ERR = FG_RD + '[x] ' + RESET
     PROG_CMP = FG_GR + '[v] ' + RESET
     PROG_QST = FG_BB + '[?] ' + RESET
