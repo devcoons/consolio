@@ -93,6 +93,7 @@ class Consolio:
 
     _last_message = []
     _last_indent = 0
+    _last_text = ""
 
     # --------------------------------------------------------------------------------- #
     # --------------------------------------------------------------------------------- #
@@ -255,7 +256,7 @@ class Consolio:
                     with self._lock:
                         indent_spaces = " " * (self._last_indent * 4)
                         text_lines = ConsolioUtils.split_text_to_fit(self._last_text, len(indent_spaces) + 4)
-                        tline = f"{indent_spaces}{self._last_status_prefix[:5]}[{self.FG_MG}{spinner_char}{self._last_status_prefix[:5]}]{self.RESET} {text_lines[0]}"
+                        tline = f"{indent_spaces}{self.FG_BL}[{self.FG_MG}{spinner_char}{self.FG_BL}]{self.RESET} {text_lines[0]}"
                         line = ("\033[F" * len(text_lines)) + tline + ("\033[B" * len(text_lines))
                         print(line, end="", flush=True)
                 else:
