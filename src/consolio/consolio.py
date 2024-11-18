@@ -52,11 +52,16 @@ class ConsolioUtils:
 
     def split_text_to_fit(text, indent=0): 
         effective_width = (ConsolioUtils.get_terminal_size()[0] - 2) - indent
-        lines = []      
-        while text:     
+        lines = []
+        while text:
             line = text[:effective_width]
+            if len(text) > effective_width and ' ' in line:
+                space_idx = line.rfind(' ')
+                line = text[:space_idx]
+                text = text[space_idx+1:]
+            else:
+                text = text[effective_width:]
             lines.append(line.strip())
-            text = text[effective_width:]       
         return lines
 
 
@@ -124,15 +129,22 @@ class Consolio:
             "err": self.PROG_ERR[self._enabled_colors],
             "cmp": self.PROG_CMP[self._enabled_colors]
         }
+
+        self._last_status_prefix = ''
+        self._last_indent = 0
+        self._last_text = ''
+        self._last_text_lines = []
+        
     # --------------------------------------------------------------------------------- #
 
     def start_progress(self, indent=0, initial_percentage=0):
-        self.stop_animate()
-        self.stop_progress()
-        self._progressing = True
-        self.current_progress = initial_percentage
-        self._progress_thread = threading.Thread(target=self._progress, args=(indent,))
-        self._progress_thread.start()
+        with self._lock:
+            self.stop_animate()
+            self.stop_progress()
+            self._progressing = True
+            self.current_progress = initial_percentage
+            self._progress_thread = threading.Thread(target=self._progress, args=(indent,))
+            self._progress_thread.start()
 
     # --------------------------------------------------------------------------------- #
 
@@ -150,7 +162,8 @@ class Consolio:
                 print(f"{line}", end='\r', flush=True)
             time.sleep(0.1)
             idx += 1
-        print(' ' * len(line), end='\r', flush=True) 
+        with self._lock:
+            print(' ' * shutil.get_terminal_size().columns, end='\r', flush=True)
 
     # --------------------------------------------------------------------------------- #
 
@@ -253,7 +266,8 @@ class Consolio:
 
     def _animate(self, indent, inline_spinner):
         idx = 0
-        print("\033[?25l", end="")
+        with self._lock:
+            print("\033[?25l", end="", flush=True)
         spinner_position = 4 + (self._last_indent * 4)
         
         try:
@@ -283,7 +297,7 @@ class Consolio:
                 time.sleep(0.1)
                 idx += 1
         finally:
-            print("\033[?25h", end="\r")
+            print("\033[?25h", end="\r", flush=True)
             if not inline_spinner:
                 print(' ' * len(line), end='\r', flush=True)
 
@@ -317,6 +331,14 @@ class Consolio:
             except Exception:
                 return 0
         return int(sys.stdout.isatty())
+
+
+    # --------------------------------------------------------------------------------- #
+
+    def _clear_previous_message(self):
+        total_lines = len(self._last_text_lines)
+        for _ in range(total_lines):
+            print("\033[F\033[K", end='') 
 
 #########################################################################################
 # EOF                                                                                   #
