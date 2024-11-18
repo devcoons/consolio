@@ -78,12 +78,12 @@ class Consolio:
     FG_BB = "\033[94m"   
     RESET = "\033[0m"     
 
-    PROG_INF = FG_BL + '[i] ' + RESET
-    PROG_WIP = FG_CB + '[-] ' + RESET
-    PROG_WRN = FG_YW + '[!] ' + RESET
-    PROG_ERR = FG_RD + '[x] ' + RESET
-    PROG_CMP = FG_GR + '[v] ' + RESET
-    PROG_QST = FG_BB + '[?] ' + RESET
+    PROG_INF = [ '[i] ', FG_BL + '[i] ' + RESET ]
+    PROG_WIP = [ '[-] ', FG_CB + '[-] ' + RESET ]
+    PROG_WRN = [ '[!] ', FG_YW + '[!] ' + RESET ]
+    PROG_ERR = [ '[x] ', FG_RD + '[x] ' + RESET ]
+    PROG_CMP = [ '[v] ', FG_GR + '[v] ' + RESET ]
+    PROG_QST = [ '[?] ', FG_BB + '[?] ' + RESET ]
 
     SPINNERS = {
         'dots':  ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'],
@@ -94,6 +94,8 @@ class Consolio:
     _last_message = []
     _last_indent = 0
     _last_text = ""
+    _enabled_colors = 1
+    _status_prefixes = []
 
     # --------------------------------------------------------------------------------- #
     # --------------------------------------------------------------------------------- #
@@ -112,7 +114,17 @@ class Consolio:
         if not self.is_spinner_supported(self.spinner_chars):
             self.spinner_type = 'default'
             self.spinner_chars = self.SPINNERS['default']
-
+        
+        if not self.is_color_supported():
+            self._enabled_colors = 0
+        
+        self._status_prefixes = {
+            "inf": self.PROG_INF[self._enabled_colors],
+            "wip": self.PROG_WIP[self._enabled_colors],
+            "wrn": self.PROG_WRN[self._enabled_colors],
+            "err": self.PROG_ERR[self._enabled_colors],
+            "cmp": self.PROG_CMP[self._enabled_colors]
+        }
     # --------------------------------------------------------------------------------- #
 
     def start_progress(self, indent=0, initial_percentage=0):
@@ -202,13 +214,7 @@ class Consolio:
     def print(self, indent, status, text, replace=False):
         self.stop_animate()
         self.stop_progress()
-        status_prefix = {
-            "inf": self.PROG_INF,
-            "wip": self.PROG_WIP,
-            "wrn": self.PROG_WRN,
-            "err": self.PROG_ERR,
-            "cmp": self.PROG_CMP
-        }.get(status, "")
+        status_prefix = self._status_prefixes.get(status, "")
         indent_spaces = " " * (indent * 4)
         
         with self._lock:
@@ -292,6 +298,16 @@ class Consolio:
             except Exception:
                 return False
         return True
+
+    # --------------------------------------------------------------------------------- #
+
+    def is_color_supported(self):
+        if os.name == 'nt':
+            try:
+                return "ANSICON" in os.environ or 'WT_SESSION' in os.environ
+            except Exception:
+                return False
+        return sys.stdout.isatty()
 
 #########################################################################################
 # EOF                                                                                   #

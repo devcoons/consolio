@@ -8,21 +8,21 @@ console_braille = consolio.Consolio(spinner_type="braille")
 
 # 1. Demonstrating sprint steps with different statuses
 print("Demonstrating sprint steps with various statuses:")
-console_default.sprint(1, "str", "Start process...")
+console_default.print(1, "inf", "Info message")
 time.sleep(1)
-console_default.sprint(1, "stp", "Step of a process...")
+console_default.print(1, "wip", "Work in progress of a process...")
 time.sleep(1)
-console_default.sprint(1, "wrn", "Warning: Proceed with caution.")
+console_default.print(1, "wrn", "Warning: Proceed with caution.")
 time.sleep(1)
-console_default.sprint(1, "err", "Error encountered!")
+console_default.print(1, "err", "Error encountered!")
 time.sleep(1)
-console_default.sprint(1, "cmp", "Process completed successfully!")
+console_default.print(1, "cmp", "Process completed successfully!")
 time.sleep(1)
 
 # 2. Demonstrating indentation levels
 print("\nDemonstrating indentation levels:")
 for indent_level in range(4):
-    console_default.sprint(indent_level, "str", f"Indented message at level {indent_level}")
+    console_default.print(indent_level, "inf", f"Indented message at level {indent_level}")
     time.sleep(0.5)
 
 # 3. Demonstrating different spinners
@@ -44,36 +44,36 @@ print("\nDemonstrating presentation modes:")
 
 # Inline spinner mode
 print("Inline spinner mode:")
-console_default.sprint(1, "str", "Inline spinner running...", replace=True)
+console_default.print(1, "inf", "Inline spinner running...", replace=True)
 console_default.start_animate(inline_spinner=True)
 time.sleep(3)
 console_default.stop_animate()
 
 # Inline spinner mode
 print("Showing progress:")
-console_braille.sprint(1, "str", "A process that requires progress disply...", replace=True)
+console_braille.print(1, "inf", "A process that requires progress disply...", replace=True)
 console_braille.start_progress(indent=1)
 for i in range(1,100):
     console_braille.update_progress(i)
     time.sleep(0.05)
-console_braille.sprint(1,"cmp","The process finished.")
+console_braille.print(1,"cmp","The process finished.")
 
 # Replacing previous line mode
 print("\nReplacing previous line mode:")
-console_default.sprint(1, "str", "This message will be replaced.")
+console_default.print(1, "inf", "This message will be replaced.")
 time.sleep(2)
-console_default.sprint(1, "cmp", "Message replaced successfully!", replace=True)
+console_default.print(1, "cmp", "Message replaced successfully!", replace=True)
 
 
 # Replacing previous line mode
 print("\nMulti-line text (long text)")
-console_default.sprint(1, "str", "This message is a really long message with inline spinner that will be replaced in 2 seconds. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+console_default.print(1, "wip", "This message is a really long message with inline spinner that will be replaced in 2 seconds. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
 console_default.start_animate(inline_spinner=True)
 time.sleep(2)
-console_default.sprint(1, "cmp", "Message replaced successfully!", replace=True)
+console_default.print(1, "cmp", "Message replaced successfully!", replace=True)
 time.sleep(1)
-console_default.sprint(1, "str", "This message is a really long message with normal spinner that will be replaced in 2 seconds. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
-console_default.start_animate()
+console_default.print(1, "wip", "This message is a really long message with normal spinner that will be replaced in 2 seconds. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+console_default.start_animate(inline_spinner=True)
 time.sleep(2)
-console_default.sprint(1, "cmp", "Message replaced successfully!", replace=True)
+console_default.print(1, "cmp", "Message replaced successfully!", replace=True)
 print("\nDemonstration complete!")
