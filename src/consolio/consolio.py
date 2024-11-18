@@ -143,7 +143,10 @@ class Consolio:
             spinner_char = self.spinner_chars[idx % len(self.spinner_chars)]
             indent_spaces = " " * (indent * 4)
             with self._lock:
-                line = f"{indent_spaces}{self.FG_BL}[{self.FG_MG}{spinner_char}{self.FG_BL}]{self.RESET} In progress: {self.FG_YW}{self.current_progress}%{self.RESET}"
+                if self._enabled_colors == 0:
+                    line = f"{indent_spaces}[{spinner_char}] In progress: {self.current_progress}%"
+                else:
+                    line = f"{indent_spaces}{self.FG_BL}[{self.FG_MG}{spinner_char}{self.FG_BL}]{self.RESET} In progress: {self.FG_YW}{self.current_progress}%{self.RESET}"
                 print(f"{line}", end='\r', flush=True)
             time.sleep(0.1)
             idx += 1
@@ -261,13 +264,20 @@ class Consolio:
                     with self._lock:
                         indent_spaces = " " * (self._last_indent * 4)
                         text_lines = ConsolioUtils.split_text_to_fit(self._last_text, len(indent_spaces) + 4)
-                        tline = f"{indent_spaces}{self.FG_BL}[{self.FG_MG}{spinner_char}{self.FG_BL}]{self.RESET} {text_lines[0]}"
-                        line = ("\033[F" * len(text_lines)) + tline + ("\033[B" * len(text_lines))
+                        if self._enabled_colors == 0:
+                            tline = f"{indent_spaces}[{spinner_char}] {text_lines[0]}"
+                            line = ("\033[F" * len(text_lines)) + tline + ("\033[B" * len(text_lines))
+                        else:
+                            tline = f"{indent_spaces}{self.FG_BL}[{self.FG_MG}{spinner_char}{self.FG_BL}]{self.RESET} {text_lines[0]}"
+                            line = ("\033[F" * len(text_lines)) + tline + ("\033[B" * len(text_lines))
                         print(line, end="", flush=True)
                 else:
                     indent_spaces = " " * (indent * 4)
                     with self._lock:
-                        line = f"{indent_spaces} {self.FG_MG}{spinner_char}{self.RESET}"
+                        if self._enabled_colors == 0:
+                            line = f"{indent_spaces} {spinner_char}"
+                        else:
+                            line = f"{indent_spaces} {self.FG_MG}{spinner_char}{self.RESET}"
                         print(f"{line}", end='\r', flush=True)
                 
                 time.sleep(0.1)
