@@ -100,7 +100,7 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
     # --------------------------------------------------------------------------------- #
 
-    def __init__(self, spinner_type='default'):
+    def __init__(self, spinner_type='default', no_colors=False):
         self._animating = False
         self._progressing = False
         self._spinner_thread = None
@@ -114,9 +114,8 @@ class Consolio:
         if not self.is_spinner_supported(self.spinner_chars):
             self.spinner_type = 'default'
             self.spinner_chars = self.SPINNERS['default']
-        
-        if not self.is_color_supported():
-            self._enabled_colors = 0
+
+        self._enabled_colors = 0 if no_colors == True else self.is_color_supported()
         
         self._status_prefixes = {
             "inf": self.PROG_INF[self._enabled_colors],
@@ -304,10 +303,10 @@ class Consolio:
     def is_color_supported(self):
         if os.name == 'nt':
             try:
-                return "ANSICON" in os.environ or 'WT_SESSION' in os.environ
+                return int("ANSICON" in os.environ or 'WT_SESSION' in os.environ)
             except Exception:
-                return False
-        return sys.stdout.isatty()
+                return 0
+        return int(sys.stdout.isatty())
 
 #########################################################################################
 # EOF                                                                                   #
