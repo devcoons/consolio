@@ -368,12 +368,12 @@ class Consolio:
     
     def suspend(self):
         self.stop_progress()
-        self._suspend == True
+        self._suspend = True
 
     # --------------------------------------------------------------------------------- #
     
     def resume(self):
-        self._suspend == False
+        self._suspend = False
         
 #########################################################################################
 # EOF                                                                                   #
