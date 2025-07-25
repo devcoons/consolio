@@ -101,6 +101,7 @@ class Consolio:
     _last_text = ""
     _enabled_colors = 1
     _status_prefixes = []
+    _suspend = False
 
     # --------------------------------------------------------------------------------- #
     # --------------------------------------------------------------------------------- #
@@ -110,6 +111,7 @@ class Consolio:
         self._progressing = False
         self._spinner_thread = None
         self._progress_thread = None
+        self._suspend = False
         self._lock = threading.Lock()
         self._last_message = []
         self.spinner_type = spinner_type.lower()
@@ -138,6 +140,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def start_progress(self, indent=0, initial_percentage=0):
+        if self._suspend == True:
+            return
         with self._lock:
             self.stop_animate()
             self.stop_progress()
@@ -149,6 +153,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def _progress(self, indent):
+        if self._suspend == True:
+            return
         idx = 0
         spinner_position = 4 + (self._last_indent * 4)
         while self._progressing:
@@ -168,12 +174,16 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def update_progress(self, percentage):
+        if self._suspend == True:
+            return
         with self._lock:
             self.current_progress = percentage
 
     # --------------------------------------------------------------------------------- #
 
     def stop_progress(self):
+        if self._suspend == True:
+            return
         if self._progressing:
             self._progressing = False
             self._progress_thread.join()
@@ -182,6 +192,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
     
     def input(self, indent, question, inline=False, hidden=False, replace=False):
+        if self._suspend == True:
+            return
         self.stop_animate()
         self.stop_progress()
         indent_spaces = " " * (indent * 4)
@@ -227,6 +239,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def print(self, indent, status, text, replace=False):
+        if self._suspend == True:
+            return
         self.stop_animate()
         self.stop_progress()
         status_prefix = self._status_prefixes.get(status, "")
@@ -255,6 +269,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def start_animate(self, indent=0, inline_spinner=False):
+        if self._suspend == True:
+            return
         self.stop_progress()
         if self._animating:
             return
@@ -265,6 +281,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def _animate(self, indent, inline_spinner):
+        if self._suspend == True:
+            return
         idx = 0
         with self._lock:
             print("\033[?25l", end="", flush=True)
@@ -304,6 +322,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def stop_animate(self):
+        if self._suspend == True:
+            return
         if self._animating:
             self._animating = False
             self._spinner_thread.join()
@@ -312,6 +332,8 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def is_spinner_supported(self, spinner_chars):
+        if self._suspend == True:
+            return
         encoding = sys.stdout.encoding or 'utf-8'
         for char in spinner_chars:
             try:
@@ -336,10 +358,23 @@ class Consolio:
     # --------------------------------------------------------------------------------- #
 
     def _clear_previous_message(self):
+        if self._suspend == True:
+            return
         total_lines = len(self._last_text_lines)
         for _ in range(total_lines):
             print("\033[F\033[K", end='') 
 
+    # --------------------------------------------------------------------------------- #
+    
+    def suspend(self):
+        self.stop_progress()
+        self._suspend == True
+
+    # --------------------------------------------------------------------------------- #
+    
+    def resume(self):
+        self._suspend == False
+        
 #########################################################################################
 # EOF                                                                                   #
 #########################################################################################
