@@ -102,6 +102,7 @@ class Consolio:
     _enabled_colors = 1
     _status_prefixes = []
     _suspend = False
+    _plain = False
 
     # --------------------------------------------------------------------------------- #
     # --------------------------------------------------------------------------------- #
@@ -112,6 +113,7 @@ class Consolio:
         self._spinner_thread = None
         self._progress_thread = None
         self._suspend = False
+        self._plain = False
         self._lock = threading.Lock()
         self._last_message = []
         self.spinner_type = spinner_type.lower()
@@ -142,6 +144,8 @@ class Consolio:
     def start_progress(self, indent=0, initial_percentage=0):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         with self._lock:
             self.stop_animate()
             self.stop_progress()
@@ -155,6 +159,8 @@ class Consolio:
     def _progress(self, indent):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         idx = 0
         spinner_position = 4 + (self._last_indent * 4)
         while self._progressing:
@@ -176,6 +182,8 @@ class Consolio:
     def update_progress(self, percentage):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         with self._lock:
             self.current_progress = percentage
 
@@ -184,6 +192,8 @@ class Consolio:
     def stop_progress(self):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         if self._progressing:
             self._progressing = False
             self._progress_thread.join()
@@ -271,6 +281,8 @@ class Consolio:
     def start_animate(self, indent=0, inline_spinner=False):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         self.stop_progress()
         if self._animating:
             return
@@ -283,6 +295,8 @@ class Consolio:
     def _animate(self, indent, inline_spinner):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         idx = 0
         with self._lock:
             print("\033[?25l", end="", flush=True)
@@ -324,6 +338,8 @@ class Consolio:
     def stop_animate(self):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         if self._animating:
             self._animating = False
             self._spinner_thread.join()
@@ -334,6 +350,8 @@ class Consolio:
     def is_spinner_supported(self, spinner_chars):
         if self._suspend == True:
             return
+        if self._plain == True:
+            return            
         encoding = sys.stdout.encoding or 'utf-8'
         for char in spinner_chars:
             try:
@@ -374,6 +392,16 @@ class Consolio:
     
     def resume(self):
         self._suspend = False
+
+    # --------------------------------------------------------------------------------- #
+    
+    def plain(self):
+        self._plain = True
+
+    # --------------------------------------------------------------------------------- #
+    
+    def rich(self):
+        self._plain = False
         
 #########################################################################################
 # EOF                                                                                   #
