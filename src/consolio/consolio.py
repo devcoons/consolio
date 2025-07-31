@@ -35,6 +35,7 @@ import shutil
 import time
 import sys
 import os
+import signal
 
 #########################################################################################
 # CLASS: ConsolioUtils                                                                  #
@@ -114,11 +115,13 @@ class Consolio:
     _status_prefixes = []
     _suspend = False
     _enabled_spinner = True
+    _stop_event = threading.Event()
 
     # --------------------------------------------------------------------------------- #
     # --------------------------------------------------------------------------------- #
 
     def __init__(self, spinner_type='default', no_colors=False, no_animation=False):
+        self._stop_event = threading.Event()
         self._animating = False
         self._progressing = False
         self._spinner_thread = None
@@ -149,6 +152,18 @@ class Consolio:
         self._last_indent = 0
         self._last_text = ''
         self._last_text_lines = []
+        signal.signal(signal.SIGINT, self.cleanup_and_exit)   # Ctrl+C
+        signal.signal(signal.SIGTERM, self.cleanup_and_exit)  # Termination
+
+    # --------------------------------------------------------------------------------- #
+    
+    def cleanup_and_exit(self, signum, frame):
+        try:
+            self._stop_event.set()
+            self.stop_animate()
+        except Exception:
+            pass
+        sys.exit(1)
         
     # --------------------------------------------------------------------------------- #
 
@@ -160,7 +175,7 @@ class Consolio:
             self.stop_progress()
             self._progressing = True
             self.current_progress = initial_percentage
-            self._progress_thread = threading.Thread(target=self._progress, args=(indent,))
+            self._progress_thread = threading.Thread(target=self._progress, args=(indent,), daemon=True)
             self._progress_thread.start()
 
     # --------------------------------------------------------------------------------- #
@@ -171,6 +186,8 @@ class Consolio:
         idx = 0
         spinner_position = 4 + (self._last_indent * 4)
         while self._progressing:
+            if self._stop_event.is_set() or not threading.main_thread().is_alive():
+                return
             spinner_char = self.spinner_chars[idx % len(self.spinner_chars)]
             indent_spaces = " " * (indent * 4)
             with self._lock:
@@ -284,9 +301,10 @@ class Consolio:
     def start_animate(self, indent=0, inline_spinner=False):
         if self._suspend == True or self._enabled_spinner == False:
             return             
-        self.stop_progress()
+        self.stop_progress()       
         if self._animating:
             return
+        self._stop_event = threading.Event()    
         self._animating = True
         self._spinner_thread = threading.Thread(target=self._animate, args=(indent, inline_spinner))
         self._spinner_thread.start()
@@ -305,7 +323,8 @@ class Consolio:
         try:
             while self._animating:
                 spinner_char = self.spinner_chars[idx % len(self.spinner_chars)]
-                
+                if self._stop_event.is_set() or not threading.main_thread().is_alive():
+                    return
                 if inline_spinner:
                     with self._lock:
                         indent_spaces = " " * (self._last_indent * 4)
