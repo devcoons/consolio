@@ -1,5 +1,5 @@
 from .consolio import Consolio
 
-__version__ = '0.1.8'
+__version__ = '0.1.9'
 __name__ = "consolio"
 __all__ = ['Consolio']
