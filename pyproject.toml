@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "consolio"
-version = "0.1.13"
+version = "0.1.14"
 description = "A simple terminal I/O utility with spinner animation"
 readme = "README.md"
 authors = [{ name = "Ioannis D (devcoons)", email = "support@devcoons.com" }]
