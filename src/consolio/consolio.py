@@ -268,31 +268,49 @@ class Consolio:
 
     # --------------------------------------------------------------------------------- #
 
-    def print(self, indent, status, text, replace=False):
-        if self._suspend == True:
+    def print(self, *args, replace=False):
+        """
+        Supports three signatures:
+        - print(text, replace=False)
+        - print(status, text, replace=False)
+        - print(indent, status, text, replace=False)
+        """
+        if len(args) == 1:
+            indent = self._last_indent
+            status = "inf"
+            text = args[0]
+        elif len(args) == 2:
+            indent = self._last_indent
+            status, text = args
+        elif len(args) == 3:
+            indent, status, text = args
+        else:
+            raise TypeError("print() takes either 1, 2 or 3 positional arguments")
+
+        if self._suspend:
             return
+
         self.stop_animate()
         self.stop_progress()
+
         status_prefix = self._status_prefixes.get(status, "")
         indent_spaces = " " * (indent * 4)
-        
+
         with self._lock:
             if replace and sys.stdout.isatty():
-                total_indent = (self._last_indent*4) + 4
-                total_indent_spaces = " " * total_indent
+                total_indent = (self._last_indent * 4) + 4
                 text_lines = ConsolioUtils.split_text_to_fit(self._last_text, total_indent)[::-1]
-                
+
                 for ln in text_lines:
                     print(f"\033[F{' ' * (total_indent + len(ln))}", end='\r')
-                    
+
             self._last_status_prefix = status_prefix
             self._last_indent = indent
             self._last_text = text
             total_indent = len(indent_spaces) + 4
             total_indent_spaces = " " * total_indent
             text_lines = ConsolioUtils.split_text_to_fit(text, total_indent)
-            
-            
+
             rvar = '\r' if sys.stdout.isatty() else ''
             print(f"{rvar}{indent_spaces}{status_prefix}{text_lines[0]}")
             for ln in text_lines[1:]:
