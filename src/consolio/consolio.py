@@ -53,7 +53,7 @@ class ConsolioUtils:
     # --------------------------------------------------------------------------------- #
 
     def split_text_to_fit(text, indent=0): 
-        effective_width = (ConsolioUtils.get_terminal_size()[0] - 2) - indent
+        effective_width = ((ConsolioUtils.get_terminal_size()[0] - 2) - indent) if sys.stdout.isatty() else 512
         lines = []
         while text:
             line = text[:effective_width]
