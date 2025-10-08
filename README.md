@@ -5,86 +5,156 @@
 ![GitHub License](https://img.shields.io/github/license/devcoons/consolio?style=for-the-badge)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/consolio?style=for-the-badge&color=%23F0F)
 
-`Consolio` is a Python library that provides an elegant way to display progress updates, warnings, errors, and other status messages in the console with color-coded indicators and spinners. Ideal for CLI applications that require step-by-step feedback to users.
+`Consolio` is a lightweight, dependency-free Python library that provides an elegant way to display progress updates, warnings, errors, and other status messages in the console with color-coded indicators, spinners, and progress bars.
 
-## Table of Contents
+Perfect for CLI tools that need clean, structured feedback without complex dependencies.
 
-- [Installation](#installation)
-- [Features](#features)
-- [Usage](#usage)
-  - [Basic Initialization](#basic-initialization)
-  - [Status Message Types](#status-message-types)
-  - [Spinners](#spinners)
-- [Customization](#customization)
+---
 
 ## Installation
 
-Consolio does not require any dependencies outside of Python's standard library. To use it just install it using `pip install consolio`.
+Consolio has **no external dependencies** and works out of the box.
+
+```bash
+pip install consolio
+```
+
+If you’re using it directly from source (e.g., cloned repository), add the `src/` folder to your `PYTHONPATH` or `sys.path`:
+
+```python
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+from consolio import Consolio
+```
+
+---
 
 ## Features
 
-- Color-coded messages for different statuses: Success, Error, Warning, and more.
-- Progress spinners in various styles (`dots`, `braille`, `default`).
-- Inline spinners for seamless progress tracking within a single line.
-- Thread-safe output for smooth and consistent console display.
+- ✅ Color-coded messages for info, warning, error, success, and more.  
+- 🔁 Built-in progress **spinners** (`dots`, `braille`, `default`).  
+- 📈 Context-managed **progress bars**.  
+- 🧩 Thread-safe and clean terminal rendering (no output corruption).  
+- ⚙️ Works gracefully in both **TTY** and **non-TTY** (plain/CI) modes.  
+- 🔄 Indentation helpers (`increase_indent`, `decrease_indent`, etc.) for hierarchical output.  
 
-## Usage
+---
 
-### Basic Initialization
+## Basic Usage
 
-To get started, initialize `Consolio` with a desired spinner type. You can choose from `dots`, `braille`, or `default`.
-
-```
+```python
 from consolio import Consolio
 
-console = Consolio(spinner_type='dots')  # Initialize with dots spinner
+console = Consolio(spinner_type='dots')
+
+console.print("inf", "Starting process")
+console.print("wip", "Loading configuration...")
+console.print("wrn", "Warning: Low memory detected")
+console.print("err", "Error: Invalid input detected")
+console.print("cmp", "All done!")
 ```
 
-### Status Message Types
+---
 
-Consolio supports multiple status messages, each with a unique color and symbol:
+## Indentation Control
 
-- **Info**: `[!]` Blue - Marks the start of a process
-- **Work(Step)**: `[-]` Cyan - Intermediate step in a process
-- **Warning**: `[!]` Yellow - Displays warnings
-- **Error**: `[x]` Red - Displays errors
-- **Complete**: `[v]` Green - Indicates completion of a step or process
+You can now manage indentation dynamically without passing it every time.
 
-Use the `print` method to print messages with a specific status, indentation level, and replacement option:
+```python
+console.increase_indent()
+console.print("wip", "Setting up environment...")
 
-```
-console.print(indent=0, status="inf", text="Starting process")
-console.print(indent=1, status="wip", text="Executing step 1")
-console.print(indent=1, status="wrn", text="Warning: Check your input")
-console.print(indent=1, status="err", text="Error: Process failed")
-console.print(indent=0, status="cmp", text="Process complete")
+console.increase_indent()
+console.print("inf", "Fetching dependencies...")
+
+console.decrease_indent()
+console.print("cmp", "Setup complete.")
 ```
 
-### Spinners
+Explicit indentation still works:
 
-You can start a spinner to indicate an ongoing process using the `start_animate` method, then stop it using `stop_animate`.
-
+```python
+console.print(2, "inf", "Manual indentation works too.")
 ```
-console.start_animate(indent=1)
-# Perform a time-consuming task here
-time.sleep(3)  # Simulating task duration
+
+---
+
+## Spinners
+
+Use the spinner as a **context manager**:
+
+```python
+import time
+
+with console.spinner("Working hard...", inline=True):
+    time.sleep(2)
+
+console.print("cmp", "Task complete!")
+```
+
+Or manually start and stop it:
+
+```python
+console.start_animate()
+time.sleep(3)
 console.stop_animate()
 ```
 
-Use the `inline_spinner=True` option to display the spinner on the same line as the last message:
+---
 
+## Progress Bars
+
+```python
+import time
+
+with console.progress(initial_percentage=0) as update:
+    for i in range(0, 101, 20):
+        time.sleep(0.3)
+        update(i)
+
+console.print("cmp", "Progress complete!")
 ```
-console.print(1, "stp", "Calculating size")
-console.start_animate(inline_spinner=True)
-time.sleep(2)
-console.stop_animate()
+
+---
+
+## Input Handling
+
+```python
+user = console.input("qst", "Enter your name:")
+console.print("cmp", f"Hello, {user}!")
 ```
-### Customization
 
-The `Consolio` library supports a few customization options:
+---
 
-- **Spinner Type**: Set `spinner_type` to `dots`, `braille`, or `default`.
-- **Indentation Level**: Control indentation level in messages for organized output.
-- **Inline Spinner**: Use `inline_spinner=True` to keep spinners on the same line as a message.
-- **Replacement Mode**: Set `replace=True` in `sprint` to overwrite the previous message line.
+##  Customization
 
+| Option | Description | Example |
+|---------|-------------|----------|
+| `spinner_type` | Type of spinner (`dots`, `braille`, `default`) | `Consolio(spinner_type='braille')` |
+| `no_colors` | Disable ANSI colors | `Consolio(no_colors=True)` |
+| `no_animation` | Disable spinners/progress bars | `Consolio(no_animation=True)` |
+| `replace=True` | Overwrite previous message line | `console.print("inf", "Updating...", replace=True)` |
+| `plain()` | Force plain output (no color/animation) | `console.plain()` |
+| `rich()` | Re-enable color/animation if supported | `console.rich()` |
+
+
+## Example Structure
+
+Example scripts are located in the [`examples/`](examples/) folder:
+- `example_basic_usage.py` — Interactive demo with spinner and progress bar.  
+- `example_plain_mode.py` — CI-friendly non-interactive demo.
+
+Run them directly:
+
+```bash
+python examples/example_basic_usage.py
+```
+
+
+## License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+Made with ❤️ by [devcoons](https://github.com/devcoons)
