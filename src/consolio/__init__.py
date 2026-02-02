@@ -89,7 +89,7 @@ class ConsolioUtils:
 # Main class
 # --------------------------------------------------------------------------------------
 
-Status = Literal["inf", "wip", "wrn", "err", "cmp", "qst"]
+Status = Literal["inf", "wip", "wrn", "err", "cmp", "qst", "non"]
 
 class Consolio:
     """Terminal printing with color-coded messages, spinner and progress.
@@ -111,6 +111,7 @@ class Consolio:
     PROG_ERR = ["[x] ", FG_RD + "[x] " + RESET]
     PROG_CMP = ["[v] ", FG_GR + "[v] " + RESET]
     PROG_QST = ["[?] ", FG_BB + "[?] " + RESET]
+    PROG_NON = ["", ""]
 
     SPINNERS = {
         "dots": ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"],
@@ -150,6 +151,7 @@ class Consolio:
             "err": self.PROG_ERR[0 if not self._enabled_colors else 1],
             "cmp": self.PROG_CMP[0 if not self._enabled_colors else 1],
             "qst": self.PROG_QST[0 if not self._enabled_colors else 1],
+            "non": self.PROG_NON[0 if not self._enabled_colors else 1],
         }
 
     # ----------------------------------------------------------------------------------
@@ -245,8 +247,8 @@ class Consolio:
 
     def _refresh_prefixes(self) -> None:
         self._status_prefixes.update({
-            k: ([self.PROG_INF, self.PROG_WIP, self.PROG_WRN, self.PROG_ERR, self.PROG_CMP, self.PROG_QST][idx][0 if not self._enabled_colors else 1])
-            for idx, k in enumerate(["inf", "wip", "wrn", "err", "cmp", "qst"])
+            k: ([self.PROG_INF, self.PROG_WIP, self.PROG_WRN, self.PROG_ERR, self.PROG_CMP, self.PROG_QST, self.PROG_NON][idx][0 if not self._enabled_colors else 1])
+            for idx, k in enumerate(["inf", "wip", "wrn", "err", "cmp", "qst", "non"])
         })
 
     # ----------------------------------------------------------------------------------
@@ -261,7 +263,7 @@ class Consolio:
         """
         if len(args) == 1:
             indent = self._last_indent
-            status: Status = "inf"
+            status: Status = "non"
             text = str(args[0])
         elif len(args) == 2:
             indent = self._last_indent
@@ -489,8 +491,8 @@ class Consolio:
 
     def _validate_status(self, status: object) -> Status:
         s = str(status).lower()
-        if s not in ("inf", "wip", "wrn", "err", "cmp", "qst"):
-            raise ValueError(f"Unknown status '{status}'. Expected one of inf/wip/wrn/err/cmp/qst")
+        if s not in ("inf", "wip", "wrn", "err", "cmp", "qst", "non"):
+            raise ValueError(f"Unknown status '{status}'. Expected one of inf/wip/wrn/err/cmp/qst/non")
         return s 
 
     def enable_animation(self) -> None:
